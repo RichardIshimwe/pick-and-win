@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #8A8E90;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: green;
+}
