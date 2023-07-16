@@ -8,5 +8,18 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: green;
+  background: #121212;
 }
+
+.font-aguafina-script {
+  font-family: 'Aguafina Script', cursive;
+}
+
+.font-jacques-francois-shadow {
+  font-family: 'Jacques Francois Shadow', cursive;
+}
+
+.jolly-logder {
+  font-family: 'Jolly Lodger', cursive;
+}
+

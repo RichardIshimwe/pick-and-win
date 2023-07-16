@@ -15,6 +15,9 @@ module.exports = {
       colors: {
         primary: "var(--primary)",
       },
+      fontFamily: {
+        jacques: ["serif"]
+      }
     },
   },
   plugins: [],
