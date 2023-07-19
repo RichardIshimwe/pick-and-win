@@ -42,6 +42,7 @@ if(error) {
 console.log("email:", email, "password:", password);
 console.log("result:", result);
 toast.success(".......");
+localStorage.setItem("userIn", email);
 router.push("/");
 }
 

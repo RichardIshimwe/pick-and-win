@@ -14,6 +14,7 @@ module.exports = {
       },
       colors: {
         primary: "var(--primary)",
+        primary: "var(--secondary)",
       },
       fontFamily: {
         jacques: ["serif"]
