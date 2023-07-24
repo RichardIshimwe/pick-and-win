@@ -6,9 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { ToastContainer, toast } from "react-toastify";
 import { FirebaseError } from "firebase/app";
+import addData from "@/components/addData";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,9 +37,22 @@ const Signup = () => {
         return console.log("Other error:", error);
       }
     }
+    const handleForm = async () => {
+      const data = {
+        userEmail: email,
+        points: 0,
+        userName
+      }
+      const { result, error } = await addData('users', email, data)
+  
+      if (error) {
+        return console.log(error)
+      }
+    }
+    handleForm();
     console.log("Other error:", error);
     console.log("result:", result);
-    // router.push("/login");
+    router.push("/login");
     };
 
   return (
@@ -52,8 +67,9 @@ const Signup = () => {
           <p>Full Names</p>
           <input
             type="text"
-            placeholder="enter Your email"
+            placeholder="enter Your userName"
             className="w-80 p-2 rounded-sm border border-black bg-primary mb-3"
+            onChange={(e) => setUserName(e.target.value)}
           />
           <p>Email</p>
           <input

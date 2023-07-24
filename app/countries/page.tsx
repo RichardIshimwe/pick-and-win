@@ -10,13 +10,26 @@ import { toast, ToastContainer } from "react-toastify";
 import "./ProgressBar.module.css";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import addData from "@/components/addData";
+
+import getAllDocuments from "../getAllDocument";
 
 const Index: React.FC = () => {
   const router = useRouter();
-  if (typeof window !== 'undefined') {
-    const userIn = localStorage.getItem("userIn");
+
+  interface Media {
+    flag: string;
+    // Other properties of the 'media' object, if any
   }
-  const [data, setData] = useState([]);
+
+  interface countryData {
+    country : string,
+    capital : string,
+    name : string,
+    media : Media
+  }
+
+  const [data, setData] = useState<countryData[]>([]);
   const [country, setCountry] = useState(0);
   const [option, setOption] = useState<string[]>([]);
   const [index, setIndex] = useState<number[]>([]);
@@ -27,14 +40,40 @@ const Index: React.FC = () => {
   const [points, setPoints] = useState<number>(0);
   const [increment, setIncrement] = useState<number>(10);
   const [hint, setHint] = useState<string>("");
+  const [loggedIn, setLoggesIn] = useState<string>("");
+  const [sorted, setSorted] = useState([]);
 
-  const imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Flag_of_Bangladesh.svg/1280px-Flag_of_Bangladesh.svg.png";
+interface Player {
+  userName : string,
+  userEmail : string,
+  points : number,
+}
+
+  const [allPlayers, setAllPlayers] = useState<Player[]>([]);
+
+  const fetchAllUsers = async () => {
+    const { result, error } = await getAllDocuments('users');
+    if (error) {
+      console.error('Error fetching data:', error);
+    } else {
+      console.log('Data from Firestore:', result);
+      const sortedOne : Player[] = sortMyArray(result as Player[]);
+      sortedOne.map(item => item.userEmail == loggedIn ? localStorage.setItem("points", item.points.toString()) : item);
+      setAllPlayers(sortedOne);
+      // Do something with the data, e.g., set it to state or display it on the page
+    }
+  };
 
   useEffect(() => {
+
+    fetchAllUsers();
+
     const fetchData = async () => {
       if (typeof window !== 'undefined') {
         const pointLocal = localStorage.getItem('points');
         setPoints(parseInt(pointLocal ?? '0'));
+        const userIn = localStorage.getItem("userIn");
+        setLoggesIn(userIn ?? "noUser");
       }
         const response = await axios.get("https://api.sampleapis.com/countries/countries");
         const responseData = response.data;
@@ -67,6 +106,7 @@ const Index: React.FC = () => {
   }
 
   const checkAnswer = (answer: string) => {
+    fetchAllUsers();
     setIsTrue(true);
     if(answer == capital){
       // toast.success("correct");
@@ -83,8 +123,21 @@ const Index: React.FC = () => {
     localStorage.setItem("points", pointsAsString);
     router.push("/result");
   }
-
   const handleNext = () => {
+    fetchAllUsers();
+    const handleForm = async () => {
+      const data = {
+        userEmail: loggedIn,
+        points
+      }
+      const { result, error } = await addData('users', loggedIn, data)
+  
+      if (error) {
+        return console.log(error)
+      }
+    }
+    handleForm();
+
     setIsTrue(false);
     setRedCountry("");
     setHint("");
@@ -93,7 +146,6 @@ const Index: React.FC = () => {
       let maximum = data.length - 1;
       let minimum = 0;
       const randomCountry = Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-      // const randomCountry = country + 1;
       setCapital(data[randomCountry].capital);
       let arrayToShuffle = [data[randomCountry].capital];
       const randomNumbers = [];
@@ -119,13 +171,27 @@ const Index: React.FC = () => {
    setHint(data[country].name);
   }
 
+  interface User {
+    userEmail: string;
+    userName: string;
+    points: number;
+  }
+
+  function sortMyArray(array: User[]): User[] {
+      return array.slice().sort((a,b) => b.points - a.points);
+  }
+
+
   return (
     <Layout>
     <div className="h-screen grid grid-rows-6 gap-2">
       <Header />
       <div className="row-span-6 flex">
-        <div className="bg-black flex-grow" style={{ flexBasis: '30%' }}>
-
+        <div className="bg-black flex-grow flex justify-center items-center" style={{ flexBasis: '30%'}}>
+             <div className="border border-white text-white" style={{width : "90%", height : "90%", borderRadius : "10px"}}>
+              {allPlayers ? allPlayers.map((item, index) => 
+              <p key={index} className={`${item.userEmail == loggedIn ? "text-green-400":"text-white"}`} style={{margin : "20px"}}>{index + 1}.{item.userName} coins: {item.points}</p>) : <p>no players</p>}
+              </div>
         </div>
         <div className="bg-gray-800 flex-grow" style={{ flexBasis: '70%' }}>
           <div className="w-full h-full grid" style={{ gridTemplateColumns: 'auto', gridTemplateRows: '0.3fr 1fr 0.3fr' }}>
@@ -192,5 +258,6 @@ const Index: React.FC = () => {
 };
 
 export default Index;
+
 
 
